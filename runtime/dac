@@ -1,0 +1,9 @@
+cmd=0
+value=0
+
+test -n $1 && cmd=$(($1))
+test -n $2 && value=$(($2))
+
+axireg 0x1000 $cmd
+axireg 0x1004 $value
+
