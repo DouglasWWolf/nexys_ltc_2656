@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0x13FEF46BD3714F44",
+      "boundary_crc": "0x3A3A2582D66F6E1A",
       "design_src": "SBD",
       "device": "xc7a100tcsg324-1",
       "name": "bd_9bbd",
@@ -58,7 +58,17 @@
       },
       "probe3": {
         "direction": "I",
-        "left": "23",
+        "left": "0",
+        "right": "0"
+      },
+      "probe4": {
+        "direction": "I",
+        "left": "0",
+        "right": "0"
+      },
+      "probe5": {
+        "direction": "I",
+        "left": "0",
         "right": "0"
       }
     },
@@ -97,7 +107,7 @@
             "value": "Native"
           },
           "C_NUM_OF_PROBES": {
-            "value": "4"
+            "value": "6"
           },
           "C_PROBE0_MU_CNT": {
             "value": "1"
@@ -133,7 +143,25 @@
             "value": "0"
           },
           "C_PROBE3_WIDTH": {
-            "value": "24"
+            "value": "1"
+          },
+          "C_PROBE4_MU_CNT": {
+            "value": "1"
+          },
+          "C_PROBE4_TYPE": {
+            "value": "0"
+          },
+          "C_PROBE4_WIDTH": {
+            "value": "1"
+          },
+          "C_PROBE5_MU_CNT": {
+            "value": "1"
+          },
+          "C_PROBE5_TYPE": {
+            "value": "0"
+          },
+          "C_PROBE5_WIDTH": {
+            "value": "1"
           },
           "C_TIME_TAG_WIDTH": {
             "value": "32"
@@ -179,6 +207,18 @@
         "ports": [
           "probe3",
           "ila_lib/probe3"
+        ]
+      },
+      "probe4_1": {
+        "ports": [
+          "probe4",
+          "ila_lib/probe4"
+        ]
+      },
+      "probe5_1": {
+        "ports": [
+          "probe5",
+          "ila_lib/probe5"
         ]
       }
     }

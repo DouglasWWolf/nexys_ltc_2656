@@ -1,5 +1,8 @@
-
-
+//=================================================================================
+// This module is a driver for the LTC-2656 DAC
+//
+// https://www.analog.com/media/en/technical-documentation/data-sheets/2656fa.pdf
+//=================================================================================
  
 module ltc_2656 #
 (
@@ -9,6 +12,9 @@ module ltc_2656 #
 (
     // Clock and reset
     input   clk, resetn,
+
+    // This is high when the entire DAC is idle
+    output  idle,
 
     // The command that the DAC should carry out
     input[3:0] dac_cmd,
@@ -31,6 +37,12 @@ module ltc_2656 #
     // Drives the "(not)LDAC" pin on the DAC
     output reg ldac_out,
 
+    // When this goes high, it generates a low pulse on clr_out
+    input clr_in,
+
+    // Drives the "(not)CLR" pin on the DAC
+    output reg clr_out,
+
     // On a high-going edge the spi_dataword is clocked out
     input   start
 );
@@ -38,8 +50,15 @@ module ltc_2656 #
 // Number of nanoseconds per clk
 localparam NS_PER_CLK = 1000000000 / FREQ_HZ;
 
-// The number of clk-cycles between state changes of the sck pin
-localparam SPI_SCK_DELAY = FREQ_HZ / SPI_FREQ / 4;
+// How many clock cycles are there per SCK cycle?
+localparam CLK_PER_SCK = FREQ_HZ / SPI_FREQ;
+
+// Round CLK_PER_SCK up to the nearest even number.  This ensures that the frequency of SCK
+// will never be higher than the frequency requested via the SPI_FREQ parameter
+localparam EVEN_CLK_PER_SCK = (CLK_PER_SCK & 1) ? CLK_PER_SCK + 1 : CLK_PER_SCK;
+
+// Ensure that SPI_SCK_DELAY is 0 or positive
+localparam SPI_SCK_DELAY = (EVEN_CLK_PER_SCK > 2) ? (EVEN_CLK_PER_SCK / 2) - 1 : 0;
 
 // The possible states of the csld pin
 localparam CSLD_CHIP_SELECT = 0;
@@ -64,8 +83,10 @@ always @(posedge clk) begin
     // This is a countdown timer
     if (ldac_timer) ldac_timer <= ldac_timer - 1;
 
-    if (resetn == 0)
-        ldac_out <= 1;
+    if (resetn == 0) begin
+        lsm_state <= 0;
+        ldac_out  <= 1;
+    end
 
     else case(lsm_state)
 
@@ -84,6 +105,42 @@ always @(posedge clk) begin
 
 end
 //=============================================================================
+
+
+//=============================================================================
+// This block generates a low-going pulse on clr_out any time clr_in is high
+//=============================================================================
+reg csm_state;
+reg[15:0] clr_timer;
+//-----------------------------------------------------------------------------
+always @(posedge clk) begin
+
+    // This is a countdown timer
+    if (clr_timer) clr_timer <= clr_timer - 1;
+
+    if (resetn == 0) begin
+        csm_state <= 0;
+        clr_out  <= 1;
+    end
+
+    else case(csm_state)
+
+        0:  if (clr_in) begin
+                clr_out   <= 0;
+                clr_timer <= 40 / NS_PER_CLK;
+                csm_state  <= 1;
+            end
+
+        1:  if (clr_timer == 0) begin
+                clr_out  <= 1;
+                csm_state <= 0;
+            end
+
+    endcase
+
+end
+//=============================================================================
+
 
 
 //=============================================================================
@@ -130,7 +187,7 @@ always @(posedge clk) begin
                 sdo <= spi_dataword[23];
                 if (bit_counter == 24) begin
                     csld      <= CSLD_LOAD;
-                    delay     <= 10 / NS_PER_CLK;
+                    delay     <= SPI_SCK_DELAY;
                     fsm_state <= fsm_state + 1;
                 end else begin
                     bit_counter <= bit_counter + 1;
@@ -147,5 +204,10 @@ always @(posedge clk) begin
 end
 //=============================================================================
 
+
+// The "idle" pin is high when the entire system is idle
+assign idle = (clr_in  == 0) & (csm_state == 0)
+            & (ldac_in == 0) & (lsm_state == 0)
+            & (start   == 0) & (fsm_state == 0);
 
 endmodule

@@ -24,6 +24,7 @@ module axi_dac_control # (parameter AW=8)
     output reg[15:0] dac_value,
     output reg       dac_start, 
     output reg       dac_ldac,
+    output reg       dac_clr,
 
     //================== This is an AXI4-Lite slave interface ==================
         
@@ -62,6 +63,7 @@ module axi_dac_control # (parameter AW=8)
 localparam REG_DAC_CMD   = 0;
 localparam REG_DAC_VALUE = 1;
 localparam REG_DAC_LDAC  = 2;
+localparam REG_DAC_CLR   = 3;
 //==========================================================================
 
 
@@ -108,6 +110,7 @@ always @(posedge clk) begin
 
     dac_start <= 0;
     dac_ldac  <= 0;
+    dac_clr   <= 0;
 
     // If we're in reset, initialize important registers
     if (resetn == 0) begin
@@ -136,6 +139,8 @@ always @(posedge clk) begin
                                     end
 
                     REG_DAC_LDAC:   dac_ldac <= 1;
+
+                    REG_DAC_CLR:    dac_clr  <= 1;
 
                     // Writes to any other register are a decode-error
                     default: ashi_wresp <= DECERR;

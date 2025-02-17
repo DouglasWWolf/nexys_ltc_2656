@@ -20,10 +20,7 @@ localparam RTL_SUBTYPE   = 0;
 /*  
 
 TTD:
-   Check the timing from the final SCK (out) to the rising edge of CSLD (out)
-   Add an "idle" to the DAC driver
    Comment the hell out of the DAC driver
-   Find another solution for specifying SPI clock delay
-
+   Replace "start" and "ldac_in" and "clr_in" with "command"
 
 */

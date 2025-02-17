@@ -1,14 +1,13 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0x88B4A225040CC4BC",
+      "boundary_crc": "0x1CCB61701691E94D",
       "device": "xc7a100tcsg324-1",
       "gen_directory": "../../../../project.gen/sources_1/bd/top_level",
       "name": "top_level",
       "rev_ctrl_bd_flag": "RevCtrlBdOff",
       "synth_flow_mode": "Hierarchical",
-      "tool_version": "2021.1",
-      "validated": "true"
+      "tool_version": "2021.1"
     },
     "design_tree": {
       "source_100mhz": {
@@ -21,12 +20,14 @@
       },
       "system_interconnect": "",
       "system_ila": "",
-      "sevenseg_driver": "",
-      "display_shim": "",
       "axi_dac_control": "",
       "ltc_2656": "",
       "sim_ltc_2656": "",
-      "axi_revision": ""
+      "axi_revision": "",
+      "display": {
+        "display_shim": "",
+        "sevenseg_driver": ""
+      }
     },
     "interface_ports": {
       "UART": {
@@ -38,43 +39,11 @@
     "ports": {
       "CLK100MHZ": {
         "type": "clk",
-        "direction": "I",
-        "parameters": {
-          "CLK_DOMAIN": {
-            "value": "top_level_CLK100MHZ",
-            "value_src": "default"
-          },
-          "FREQ_HZ": {
-            "value": "100000000",
-            "value_src": "default"
-          },
-          "FREQ_TOLERANCE_HZ": {
-            "value": "0",
-            "value_src": "default"
-          },
-          "INSERT_VIP": {
-            "value": "0",
-            "value_src": "default"
-          },
-          "PHASE": {
-            "value": "0.0",
-            "value_src": "default"
-          }
-        }
+        "direction": "I"
       },
       "CPU_RESETN": {
         "type": "rst",
-        "direction": "I",
-        "parameters": {
-          "INSERT_VIP": {
-            "value": "0",
-            "value_src": "default"
-          },
-          "POLARITY": {
-            "value": "ACTIVE_LOW",
-            "value_src": "default"
-          }
-        }
+        "direction": "I"
       },
       "LED": {
         "direction": "O",
@@ -95,6 +64,9 @@
         "direction": "O",
         "left": "7",
         "right": "0"
+      },
+      "LED16_B": {
+        "direction": "O"
       }
     },
     "components": {
@@ -824,198 +796,7 @@
             "value": "NATIVE"
           },
           "C_NUM_OF_PROBES": {
-            "value": "4"
-          }
-        }
-      },
-      "sevenseg_driver": {
-        "vlnv": "xilinx.com:module_ref:sevenseg_driver:1.0",
-        "xci_name": "top_level_sevenseg_driver_0_0",
-        "xci_path": "ip/top_level_sevenseg_driver_0_0/top_level_sevenseg_driver_0_0.xci",
-        "inst_hier_path": "sevenseg_driver",
-        "reference_info": {
-          "ref_type": "hdl",
-          "ref_name": "sevenseg_driver",
-          "boundary_crc": "0x0"
-        },
-        "ports": {
-          "clk": {
-            "type": "clk",
-            "direction": "I",
-            "parameters": {
-              "ASSOCIATED_RESET": {
-                "value": "resetn",
-                "value_src": "constant"
-              },
-              "FREQ_HZ": {
-                "value": "100000000",
-                "value_src": "ip_prop"
-              },
-              "PHASE": {
-                "value": "0.0",
-                "value_src": "ip_prop"
-              },
-              "CLK_DOMAIN": {
-                "value": "/source_100mhz/system_clock_clk_out1",
-                "value_src": "ip_prop"
-              }
-            }
-          },
-          "resetn": {
-            "type": "rst",
-            "direction": "I",
-            "parameters": {
-              "POLARITY": {
-                "value": "ACTIVE_LOW",
-                "value_src": "constant"
-              }
-            }
-          },
-          "display": {
-            "direction": "I",
-            "left": "31",
-            "right": "0"
-          },
-          "digit_enable": {
-            "direction": "I",
-            "left": "7",
-            "right": "0"
-          },
-          "ANODE": {
-            "direction": "O",
-            "left": "7",
-            "right": "0"
-          },
-          "CATHODE": {
-            "direction": "O",
-            "left": "7",
-            "right": "0"
-          }
-        }
-      },
-      "display_shim": {
-        "vlnv": "xilinx.com:module_ref:display_shim:1.0",
-        "xci_name": "top_level_display_shim_0_0",
-        "xci_path": "ip/top_level_display_shim_0_0/top_level_display_shim_0_0.xci",
-        "inst_hier_path": "display_shim",
-        "reference_info": {
-          "ref_type": "hdl",
-          "ref_name": "display_shim",
-          "boundary_crc": "0x0"
-        },
-        "ports": {
-          "clk": {
-            "type": "clk",
-            "direction": "I",
-            "parameters": {
-              "FREQ_HZ": {
-                "value": "100000000",
-                "value_src": "ip_prop"
-              },
-              "PHASE": {
-                "value": "0.0",
-                "value_src": "ip_prop"
-              },
-              "CLK_DOMAIN": {
-                "value": "/source_100mhz/system_clock_clk_out1",
-                "value_src": "ip_prop"
-              }
-            }
-          },
-          "dac_a": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "dac_b": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "dac_c": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "dac_d": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "dac_e": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "dac_f": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "dac_g": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "dac_h": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "inp_a": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "inp_b": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "inp_c": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "inp_d": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "inp_e": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "inp_f": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "inp_g": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "inp_h": {
-            "direction": "I",
-            "left": "15",
-            "right": "0"
-          },
-          "ch_select": {
-            "direction": "I",
-            "left": "2",
-            "right": "0"
-          },
-          "display": {
-            "direction": "O",
-            "left": "31",
-            "right": "0"
-          },
-          "digit_enable": {
-            "direction": "O",
-            "left": "7",
-            "right": "0"
+            "value": "6"
           }
         }
       },
@@ -1303,6 +1084,9 @@
           },
           "dac_ldac": {
             "direction": "O"
+          },
+          "dac_clr": {
+            "direction": "O"
           }
         }
       },
@@ -1324,18 +1108,6 @@
               "ASSOCIATED_RESET": {
                 "value": "resetn",
                 "value_src": "constant"
-              },
-              "FREQ_HZ": {
-                "value": "100000000",
-                "value_src": "ip_prop"
-              },
-              "PHASE": {
-                "value": "0.0",
-                "value_src": "ip_prop"
-              },
-              "CLK_DOMAIN": {
-                "value": "/source_100mhz/system_clock_clk_out1",
-                "value_src": "ip_prop"
               }
             }
           },
@@ -1348,6 +1120,9 @@
                 "value_src": "constant"
               }
             }
+          },
+          "idle": {
+            "direction": "O"
           },
           "dac_cmd": {
             "direction": "I",
@@ -1379,6 +1154,12 @@
           "ldac_out": {
             "direction": "O"
           },
+          "clr_in": {
+            "direction": "I"
+          },
+          "clr_out": {
+            "direction": "O"
+          },
           "start": {
             "direction": "I"
           }
@@ -1389,6 +1170,11 @@
         "xci_name": "top_level_sim_ltc_2656_0_0",
         "xci_path": "ip/top_level_sim_ltc_2656_0_0/top_level_sim_ltc_2656_0_0.xci",
         "inst_hier_path": "sim_ltc_2656",
+        "parameters": {
+          "UNPOWERED_DAC_VALUE": {
+            "value": "0xDEAD"
+          }
+        },
         "reference_info": {
           "ref_type": "hdl",
           "ref_name": "sim_ltc_2656",
@@ -1402,18 +1188,6 @@
               "ASSOCIATED_RESET": {
                 "value": "resetn",
                 "value_src": "constant"
-              },
-              "FREQ_HZ": {
-                "value": "100000000",
-                "value_src": "ip_prop"
-              },
-              "PHASE": {
-                "value": "0.0",
-                "value_src": "ip_prop"
-              },
-              "CLK_DOMAIN": {
-                "value": "/source_100mhz/system_clock_clk_out1",
-                "value_src": "ip_prop"
               }
             }
           },
@@ -1437,6 +1211,9 @@
             "direction": "I"
           },
           "ldac": {
+            "direction": "I"
+          },
+          "clr": {
             "direction": "I"
           },
           "dac_a": {
@@ -1524,6 +1301,9 @@
             "left": "7",
             "right": "0"
           },
+          "internal_vref": {
+            "direction": "O"
+          },
           "spi_dataword_out": {
             "direction": "O",
             "left": "23",
@@ -1554,10 +1334,6 @@
               "PROTOCOL": {
                 "value": "AXI4LITE",
                 "value_src": "constant"
-              },
-              "FREQ_HZ": {
-                "value": "100000000",
-                "value_src": "ip_prop"
               },
               "ID_WIDTH": {
                 "value": "0",
@@ -1642,22 +1418,6 @@
               "MAX_BURST_LENGTH": {
                 "value": "1",
                 "value_src": "auto"
-              },
-              "PHASE": {
-                "value": "0.0",
-                "value_src": "ip_prop"
-              },
-              "CLK_DOMAIN": {
-                "value": "/source_100mhz/system_clock_clk_out1",
-                "value_src": "ip_prop"
-              },
-              "RUSER_BITS_PER_BYTE": {
-                "value": "0",
-                "value_src": "user_prop"
-              },
-              "WUSER_BITS_PER_BYTE": {
-                "value": "0",
-                "value_src": "user_prop"
               }
             },
             "port_maps": {
@@ -1770,18 +1530,6 @@
               "ASSOCIATED_RESET": {
                 "value": "AXI_ARESETN",
                 "value_src": "constant"
-              },
-              "FREQ_HZ": {
-                "value": "100000000",
-                "value_src": "ip_prop"
-              },
-              "PHASE": {
-                "value": "0.0",
-                "value_src": "ip_prop"
-              },
-              "CLK_DOMAIN": {
-                "value": "/source_100mhz/system_clock_clk_out1",
-                "value_src": "ip_prop"
               }
             }
           },
@@ -1794,6 +1542,447 @@
                 "value_src": "constant"
               }
             }
+          }
+        }
+      },
+      "display": {
+        "ports": {
+          "clk": {
+            "type": "clk",
+            "direction": "I"
+          },
+          "dac_a": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "dac_b": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "dac_c": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "dac_d": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "dac_e": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "dac_f": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "dac_g": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "dac_h": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "inp_a": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "inp_b": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "inp_c": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "inp_d": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "inp_e": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "inp_f": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "inp_g": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "inp_h": {
+            "direction": "I",
+            "left": "15",
+            "right": "0"
+          },
+          "SW": {
+            "direction": "I",
+            "left": "2",
+            "right": "0"
+          },
+          "resetn": {
+            "type": "rst",
+            "direction": "I"
+          },
+          "AN": {
+            "direction": "O",
+            "left": "7",
+            "right": "0"
+          },
+          "SEG": {
+            "direction": "O",
+            "left": "7",
+            "right": "0"
+          }
+        },
+        "components": {
+          "display_shim": {
+            "vlnv": "xilinx.com:module_ref:display_shim:1.0",
+            "xci_name": "top_level_display_shim_0_0",
+            "xci_path": "ip/top_level_display_shim_0_0/top_level_display_shim_0_0.xci",
+            "inst_hier_path": "display/display_shim",
+            "reference_info": {
+              "ref_type": "hdl",
+              "ref_name": "display_shim",
+              "boundary_crc": "0x0"
+            },
+            "ports": {
+              "clk": {
+                "type": "clk",
+                "direction": "I",
+                "parameters": {
+                  "FREQ_HZ": {
+                    "value": "100000000",
+                    "value_src": "ip_prop"
+                  },
+                  "PHASE": {
+                    "value": "0.0",
+                    "value_src": "ip_prop"
+                  },
+                  "CLK_DOMAIN": {
+                    "value": "/source_100mhz/system_clock_clk_out1",
+                    "value_src": "ip_prop"
+                  }
+                }
+              },
+              "dac_a": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "dac_b": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "dac_c": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "dac_d": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "dac_e": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "dac_f": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "dac_g": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "dac_h": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "inp_a": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "inp_b": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "inp_c": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "inp_d": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "inp_e": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "inp_f": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "inp_g": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "inp_h": {
+                "direction": "I",
+                "left": "15",
+                "right": "0"
+              },
+              "ch_select": {
+                "direction": "I",
+                "left": "2",
+                "right": "0"
+              },
+              "display": {
+                "direction": "O",
+                "left": "31",
+                "right": "0"
+              },
+              "digit_enable": {
+                "direction": "O",
+                "left": "7",
+                "right": "0"
+              }
+            }
+          },
+          "sevenseg_driver": {
+            "vlnv": "xilinx.com:module_ref:sevenseg_driver:1.0",
+            "xci_name": "top_level_sevenseg_driver_0_0",
+            "xci_path": "ip/top_level_sevenseg_driver_0_0/top_level_sevenseg_driver_0_0.xci",
+            "inst_hier_path": "display/sevenseg_driver",
+            "reference_info": {
+              "ref_type": "hdl",
+              "ref_name": "sevenseg_driver",
+              "boundary_crc": "0x0"
+            },
+            "ports": {
+              "clk": {
+                "type": "clk",
+                "direction": "I",
+                "parameters": {
+                  "ASSOCIATED_RESET": {
+                    "value": "resetn",
+                    "value_src": "constant"
+                  },
+                  "FREQ_HZ": {
+                    "value": "100000000",
+                    "value_src": "ip_prop"
+                  },
+                  "PHASE": {
+                    "value": "0.0",
+                    "value_src": "ip_prop"
+                  },
+                  "CLK_DOMAIN": {
+                    "value": "/source_100mhz/system_clock_clk_out1",
+                    "value_src": "ip_prop"
+                  }
+                }
+              },
+              "resetn": {
+                "type": "rst",
+                "direction": "I",
+                "parameters": {
+                  "POLARITY": {
+                    "value": "ACTIVE_LOW",
+                    "value_src": "constant"
+                  }
+                }
+              },
+              "display": {
+                "direction": "I",
+                "left": "31",
+                "right": "0"
+              },
+              "digit_enable": {
+                "direction": "I",
+                "left": "7",
+                "right": "0"
+              },
+              "ANODE": {
+                "direction": "O",
+                "left": "7",
+                "right": "0"
+              },
+              "CATHODE": {
+                "direction": "O",
+                "left": "7",
+                "right": "0"
+              }
+            }
+          }
+        },
+        "nets": {
+          "ch_select_0_1": {
+            "ports": [
+              "SW",
+              "display_shim/ch_select"
+            ]
+          },
+          "display_shim_digit_enable": {
+            "ports": [
+              "display_shim/digit_enable",
+              "sevenseg_driver/digit_enable"
+            ]
+          },
+          "display_shim_display": {
+            "ports": [
+              "display_shim/display",
+              "sevenseg_driver/display"
+            ]
+          },
+          "sevenseg_driver_ANODE": {
+            "ports": [
+              "sevenseg_driver/ANODE",
+              "AN"
+            ]
+          },
+          "sevenseg_driver_CATHODE": {
+            "ports": [
+              "sevenseg_driver/CATHODE",
+              "SEG"
+            ]
+          },
+          "sim_ltc_2656_dac_a": {
+            "ports": [
+              "dac_a",
+              "display_shim/dac_a"
+            ]
+          },
+          "sim_ltc_2656_dac_b": {
+            "ports": [
+              "dac_b",
+              "display_shim/dac_b"
+            ]
+          },
+          "sim_ltc_2656_dac_c": {
+            "ports": [
+              "dac_c",
+              "display_shim/dac_c"
+            ]
+          },
+          "sim_ltc_2656_dac_d": {
+            "ports": [
+              "dac_d",
+              "display_shim/dac_d"
+            ]
+          },
+          "sim_ltc_2656_dac_e": {
+            "ports": [
+              "dac_e",
+              "display_shim/dac_e"
+            ]
+          },
+          "sim_ltc_2656_dac_f": {
+            "ports": [
+              "dac_f",
+              "display_shim/dac_f"
+            ]
+          },
+          "sim_ltc_2656_dac_g": {
+            "ports": [
+              "dac_g",
+              "display_shim/dac_g"
+            ]
+          },
+          "sim_ltc_2656_dac_h": {
+            "ports": [
+              "dac_h",
+              "display_shim/dac_h"
+            ]
+          },
+          "sim_ltc_2656_inp_a": {
+            "ports": [
+              "inp_a",
+              "display_shim/inp_a"
+            ]
+          },
+          "sim_ltc_2656_inp_b": {
+            "ports": [
+              "inp_b",
+              "display_shim/inp_b"
+            ]
+          },
+          "sim_ltc_2656_inp_c": {
+            "ports": [
+              "inp_c",
+              "display_shim/inp_c"
+            ]
+          },
+          "sim_ltc_2656_inp_d": {
+            "ports": [
+              "inp_d",
+              "display_shim/inp_d"
+            ]
+          },
+          "sim_ltc_2656_inp_e": {
+            "ports": [
+              "inp_e",
+              "display_shim/inp_e"
+            ]
+          },
+          "sim_ltc_2656_inp_f": {
+            "ports": [
+              "inp_f",
+              "display_shim/inp_f"
+            ]
+          },
+          "sim_ltc_2656_inp_g": {
+            "ports": [
+              "inp_g",
+              "display_shim/inp_g"
+            ]
+          },
+          "sim_ltc_2656_inp_h": {
+            "ports": [
+              "inp_h",
+              "display_shim/inp_h"
+            ]
+          },
+          "source_100mhz_sys_clk": {
+            "ports": [
+              "clk",
+              "sevenseg_driver/clk",
+              "display_shim/clk"
+            ]
+          },
+          "source_100mhz_sys_resetn": {
+            "ports": [
+              "resetn",
+              "sevenseg_driver/resetn"
+            ]
           }
         }
       }
@@ -1831,6 +2020,12 @@
           "ltc_2656/dac_channel"
         ]
       },
+      "axi_dac_control_dac_clr": {
+        "ports": [
+          "axi_dac_control/dac_clr",
+          "ltc_2656/clr_in"
+        ]
+      },
       "axi_dac_control_dac_cmd": {
         "ports": [
           "axi_dac_control/dac_cmd",
@@ -1858,7 +2053,7 @@
       "ch_select_0_1": {
         "ports": [
           "SW",
-          "display_shim/ch_select"
+          "display/SW"
         ]
       },
       "clk_in1_0_1": {
@@ -1867,22 +2062,17 @@
           "source_100mhz/clk_in"
         ]
       },
-      "display_shim_digit_enable": {
-        "ports": [
-          "display_shim/digit_enable",
-          "sevenseg_driver/digit_enable"
-        ]
-      },
-      "display_shim_display": {
-        "ports": [
-          "display_shim/display",
-          "sevenseg_driver/display"
-        ]
-      },
       "ext_reset_in_0_1": {
         "ports": [
           "CPU_RESETN",
           "source_100mhz/resetn_in"
+        ]
+      },
+      "ltc_2656_clr_out": {
+        "ports": [
+          "ltc_2656/clr_out",
+          "system_ila/probe4",
+          "sim_ltc_2656/clr"
         ]
       },
       "ltc_2656_csld": {
@@ -1892,9 +2082,16 @@
           "sim_ltc_2656/csld"
         ]
       },
+      "ltc_2656_idle": {
+        "ports": [
+          "ltc_2656/idle",
+          "system_ila/probe3"
+        ]
+      },
       "ltc_2656_ldac_out": {
         "ports": [
           "ltc_2656/ldac_out",
+          "system_ila/probe5",
           "sim_ltc_2656/ldac"
         ]
       },
@@ -1914,110 +2111,116 @@
       },
       "sevenseg_driver_ANODE": {
         "ports": [
-          "sevenseg_driver/ANODE",
+          "display/AN",
           "AN"
         ]
       },
       "sevenseg_driver_CATHODE": {
         "ports": [
-          "sevenseg_driver/CATHODE",
+          "display/SEG",
           "SEG"
         ]
       },
       "sim_ltc_2656_dac_a": {
         "ports": [
           "sim_ltc_2656/dac_a",
-          "display_shim/dac_a"
+          "display/dac_a"
         ]
       },
       "sim_ltc_2656_dac_b": {
         "ports": [
           "sim_ltc_2656/dac_b",
-          "display_shim/dac_b"
+          "display/dac_b"
         ]
       },
       "sim_ltc_2656_dac_c": {
         "ports": [
           "sim_ltc_2656/dac_c",
-          "display_shim/dac_c"
+          "display/dac_c"
         ]
       },
       "sim_ltc_2656_dac_d": {
         "ports": [
           "sim_ltc_2656/dac_d",
-          "display_shim/dac_d"
+          "display/dac_d"
         ]
       },
       "sim_ltc_2656_dac_e": {
         "ports": [
           "sim_ltc_2656/dac_e",
-          "display_shim/dac_e"
+          "display/dac_e"
         ]
       },
       "sim_ltc_2656_dac_f": {
         "ports": [
           "sim_ltc_2656/dac_f",
-          "display_shim/dac_f"
+          "display/dac_f"
         ]
       },
       "sim_ltc_2656_dac_g": {
         "ports": [
           "sim_ltc_2656/dac_g",
-          "display_shim/dac_g"
+          "display/dac_g"
         ]
       },
       "sim_ltc_2656_dac_h": {
         "ports": [
           "sim_ltc_2656/dac_h",
-          "display_shim/dac_h"
+          "display/dac_h"
         ]
       },
       "sim_ltc_2656_inp_a": {
         "ports": [
           "sim_ltc_2656/inp_a",
-          "display_shim/inp_a"
+          "display/inp_a"
         ]
       },
       "sim_ltc_2656_inp_b": {
         "ports": [
           "sim_ltc_2656/inp_b",
-          "display_shim/inp_b"
+          "display/inp_b"
         ]
       },
       "sim_ltc_2656_inp_c": {
         "ports": [
           "sim_ltc_2656/inp_c",
-          "display_shim/inp_c"
+          "display/inp_c"
         ]
       },
       "sim_ltc_2656_inp_d": {
         "ports": [
           "sim_ltc_2656/inp_d",
-          "display_shim/inp_d"
+          "display/inp_d"
         ]
       },
       "sim_ltc_2656_inp_e": {
         "ports": [
           "sim_ltc_2656/inp_e",
-          "display_shim/inp_e"
+          "display/inp_e"
         ]
       },
       "sim_ltc_2656_inp_f": {
         "ports": [
           "sim_ltc_2656/inp_f",
-          "display_shim/inp_f"
+          "display/inp_f"
         ]
       },
       "sim_ltc_2656_inp_g": {
         "ports": [
           "sim_ltc_2656/inp_g",
-          "display_shim/inp_g"
+          "display/inp_g"
         ]
       },
       "sim_ltc_2656_inp_h": {
         "ports": [
           "sim_ltc_2656/inp_h",
-          "display_shim/inp_h"
+          "display/inp_h"
+        ]
+      },
+      "sim_ltc_2656_internal_vref": {
+        "ports": [
+          "sim_ltc_2656/internal_vref",
+          "LED16_B"
         ]
       },
       "sim_ltc_2656_powered": {
@@ -2026,24 +2229,17 @@
           "LED"
         ]
       },
-      "sim_ltc_2656_spi_dataword_out": {
-        "ports": [
-          "sim_ltc_2656/spi_dataword_out",
-          "system_ila/probe3"
-        ]
-      },
       "source_100mhz_sys_clk": {
         "ports": [
           "source_100mhz/sys_clk",
           "uart_axi_bridge/s_axi_aclk",
           "system_interconnect/aclk",
           "system_ila/clk",
-          "sevenseg_driver/clk",
-          "display_shim/clk",
           "axi_dac_control/clk",
           "ltc_2656/clk",
           "sim_ltc_2656/clk",
-          "axi_revision/AXI_ACLK"
+          "axi_revision/AXI_ACLK",
+          "display/clk"
         ]
       },
       "source_100mhz_sys_resetn": {
@@ -2051,11 +2247,11 @@
           "source_100mhz/sys_resetn",
           "uart_axi_bridge/s_axi_aresetn",
           "system_interconnect/aresetn",
-          "sevenseg_driver/resetn",
           "axi_dac_control/resetn",
           "ltc_2656/resetn",
           "sim_ltc_2656/resetn",
-          "axi_revision/AXI_ARESETN"
+          "axi_revision/AXI_ARESETN",
+          "display/resetn"
         ]
       }
     },

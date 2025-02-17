@@ -1,9 +1,61 @@
-cmd=0
-value=0
+###########################################################################
+# Command codes
+#
+#  0000 Write to Input Register n
+#  0001 Power Up DAC Register n
+#  0010 Write to Input Register n, Power Up All
+#  0011 Write to and Power Up n
+#  0100 Power Down n
+#  0101 Power Down Chip (All DACs and Reference)
+#  0110 Select Internal Reference (Power-Up Reference)
+#  0111 Select External Reference (Power-Down Reference)
+#  1111 No Operation
+# 
+# 
+# Address codes
+# 
+#  0000 DAC A
+#  0001 DAC B
+#  0010 DAC C
+#  0011 DAC D
+#  0100 DAC E
+#  0101 DAC F
+#  0110 DAC G
+#  0111 DAC H
+#  1111 All DACs
+########################################################################   
+  
+  
+  CMD_REG=0x1000
+VALUE_REG=0x1004
+ LDAC_REG=0x1008
+  CLR_REG=0x100C
 
-test -n $1 && cmd=$(($1))
-test -n $2 && value=$(($2))
+cmd=$1
+value=$2
 
-axireg 0x1000 $cmd
-axireg 0x1004 $value
+
+if [ "$1" == "" ]; then
+    echo "Missing command or command value"
+    exit 1
+fi
+
+
+test "$2" == "" && value=0
+
+if [ $cmd == "ldac" ]; then
+    axireg $LDAC_REG 1
+    exit 0
+fi
+
+if [ $cmd == "clr" ]; then
+    axireg $CLR_REG 1
+    exit 0
+fi
+
+# Here we write a 4-bit command followed by a 4-bit address
+axireg $CMD_REG $cmd
+
+# Here we write a 16-bit DAC value
+axireg $VALUE_REG $value
 

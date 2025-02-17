@@ -1,5 +1,13 @@
- 
-module sim_ltc_2656
+//=================================================================================
+// This module is a simulator for the LTC-2656 DAC
+//
+// https://www.analog.com/media/en/technical-documentation/data-sheets/2656fa.pdf
+//=================================================================================
+
+module sim_ltc_2656 #
+(
+    parameter UNPOWERED_DAC_VALUE = 16'hDEAD    
+)
 (
     // Clock and reset
     input   clk, resetn,
@@ -13,6 +21,9 @@ module sim_ltc_2656
     // When this goes low, all DAC outputs are turned on
     input ldac,
 
+    // When this goes low, the input register for each DAC goes to 0.
+    input clr,
+
     // The 8 DAC outputs
     output[15:0] dac_a, dac_b, dac_c, dac_d,
     output[15:0] dac_e, dac_f, dac_g, dac_h,
@@ -23,6 +34,9 @@ module sim_ltc_2656
     // For a given bit position: 0 = DAC channel is powered down, 1 = DAC channel is powered up
     output reg[7:0] powered,
 
+    // When this is high, the DAC's internal voltage reference is powered up
+    output reg internal_vref,
+
     // When a command/channel/value is received via SPI, it gets output here
     output reg[23:0] spi_dataword_out
 );
@@ -32,11 +46,8 @@ genvar i;
 // Our DAC has 8 output channels
 localparam DAC_CHANNELS = 8;
 
-// This is "DAC_CHANNELS" 1 bits in a row.
+// This is "DAC_CHANNELS" 1 bits in a row. (for instance, if DAC_CHANNELS is 8, this is 0'b11111111)
 localparam ALL_DAC_CHANNELS = (1 << DAC_CHANNELS) - 1;
-
-// When a DAC channel is unpowered, this is what it outputs
-localparam UNPOWERED = 16'hDEAD;
 
 // This is the dataword that was clocked in on the sck and sdi pins
 reg[23:0] spi_dataword;
@@ -50,14 +61,14 @@ wire[15:0] dac_value   = spi_dataword[15:00];
 reg[15:0] dac_input[0:DAC_CHANNELS-1];
 
 // The DAC outputs are driven from the dac_input registers
-assign dac_a = powered[0] ? dac_input[0] : UNPOWERED;
-assign dac_b = powered[1] ? dac_input[1] : UNPOWERED;
-assign dac_c = powered[2] ? dac_input[2] : UNPOWERED;
-assign dac_d = powered[3] ? dac_input[3] : UNPOWERED;
-assign dac_e = powered[4] ? dac_input[4] : UNPOWERED;
-assign dac_f = powered[5] ? dac_input[5] : UNPOWERED;
-assign dac_g = powered[6] ? dac_input[6] : UNPOWERED;
-assign dac_h = powered[7] ? dac_input[7] : UNPOWERED;
+assign dac_a = powered[0] ? dac_input[0] : UNPOWERED_DAC_VALUE;
+assign dac_b = powered[1] ? dac_input[1] : UNPOWERED_DAC_VALUE;
+assign dac_c = powered[2] ? dac_input[2] : UNPOWERED_DAC_VALUE;
+assign dac_d = powered[3] ? dac_input[3] : UNPOWERED_DAC_VALUE;
+assign dac_e = powered[4] ? dac_input[4] : UNPOWERED_DAC_VALUE;
+assign dac_f = powered[5] ? dac_input[5] : UNPOWERED_DAC_VALUE;
+assign dac_g = powered[6] ? dac_input[6] : UNPOWERED_DAC_VALUE;
+assign dac_h = powered[7] ? dac_input[7] : UNPOWERED_DAC_VALUE;
 
 
 // Copy the DAC input registers to ports for debugging or display
@@ -85,6 +96,23 @@ always @(posedge clk) begin
         prior_ldac <= ldac;
 end
 //=============================================================================
+
+
+
+//=============================================================================
+// This block drives clr_edge high on every clock cycle where a low-going
+// edge is detected in the clr input
+//=============================================================================
+reg prior_clr;
+wire clr_edge = (prior_clr == 1) & (clr == 0);
+always @(posedge clk) begin
+    if (resetn == 0) 
+        prior_clr <= 0;
+    else
+        prior_clr <= clr;
+end
+//=============================================================================
+
 
 
 //=============================================================================
@@ -122,19 +150,27 @@ end
 
 //=============================================================================
 // This blocks fills the dac_input registers from "dac_value" whenever
-// "latch_dac_input" is high
+// "latch_dac_input" is high.
+//
+// On a low-going edge on the "clr" pin, the dac input registers are cleared 
+// to zero.
 //=============================================================================
 reg latch_dac_input;
 //-----------------------------------------------------------------------------
 for (i=0; i<DAC_CHANNELS; i=i+1) begin
     always @(posedge clk) begin
 
+        // If we've been told to latch a new input value...
         if (latch_dac_input) begin
             if ((dac_channel == i) || (dac_channel == 4'b1111)) begin
                 dac_input[i] <= dac_value;
             end
         end
 
+        // If we've sensed a low going edge on the "clr" pin...
+        if (clr_edge) dac_input[i] <= 0;
+
+        // If we're in reset...
         if (resetn == 0) dac_input[i] <= 0;
     end
 end
@@ -177,8 +213,10 @@ always @(posedge clk) begin
     prior_csld <= csld;
 
     // If we're in reset...
-    if (resetn == 0)
-        prior_csld <= 0;
+    if (resetn == 0) begin
+        prior_csld    <= 0;
+        internal_vref <= 1;
+    end
 
     // Otherwise, on the high-going edge of csld...
     else if (prior_csld == 0 && csld == 1) begin
@@ -240,13 +278,27 @@ always @(posedge clk) begin
                 end
 
             // Power down all DAC channels
+            // Power down the internal voltage reference
             4'b0101:
                 begin
+                    internal_vref        <= 0;
                     powered_update_state <= 0;
                     powered_update_mask  <= ALL_DAC_CHANNELS;
                     powered_latch        <= 1;
                 end
 
+            // Power up the internal voltage reference
+            4'b0110:
+                begin
+                    internal_vref <= 1;
+                end
+
+            // Power down the internal voltage reference
+            4'b0111:
+                begin
+                    internal_vref <= 0;
+                end
+            
             // In all other cases, do nothing
             default:
                 begin
