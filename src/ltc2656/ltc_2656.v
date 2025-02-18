@@ -139,8 +139,8 @@ always @(posedge clk) begin
                 sdo          <= spi_dataword[23];
                 spi_dataword <= spi_dataword << 1;
                 if (bit_counter < 24) begin
-                    fsm_delay   <= SPI_SCK_DELAY;
-                    fsm_state   <= FSM_RISING_SCK;
+                    fsm_delay <= SPI_SCK_DELAY;
+                    fsm_state <= FSM_RISING_SCK;
                 end else begin
                     csld      <= CSLD_LOAD;
                     fsm_state <= FSM_WAIT_COMPLETE;
