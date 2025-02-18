@@ -31,21 +31,21 @@ module ltc_2656 #
     // When this is low, the DAC clocks in data from SDI/SCK
     output reg csld,
 
-    // When this goes high, it generates a low pulse on ldac_out
-    input ldac_in,
-
     // Drives the "(not)LDAC" pin on the DAC
     output reg ldac_out,
-
-    // When this goes high, it generates a low pulse on clr_out
-    input clr_in,
 
     // Drives the "(not)CLR" pin on the DAC
     output reg clr_out,
 
-    // On a high-going edge the spi_dataword is clocked out
-    input   start
+    // When non-zero, a command (specified by COMMAND_XXX) is initiated
+    input[1:0] command
 );
+
+// These are the commands that can be written to the "command" port
+localparam COMMAND_NONE = 0;
+localparam COMMAND_XFER = 1;
+localparam COMMAND_LDAC = 2;
+localparam COMMAND_CLR  = 3;
 
 // Number of nanoseconds per clk
 localparam NS_PER_CLK = 1000000000 / FREQ_HZ;
@@ -67,80 +67,16 @@ localparam CSLD_LOAD        = 1;
 // This is the dataword that will be clocked out on the sck and sdi pins
 reg[23:0] spi_dataword;
 
-reg[ 3:0] fsm_state;
-reg[15:0] delay;
+reg[ 4:0] fsm_state;
+reg[15:0] fsm_delay;
 reg[ 6:0] bit_counter;
 
-
-//=============================================================================
-// This block generates a low-going pulse on ldac_out any time ldac_in is high
-//=============================================================================
-reg lsm_state;
-reg[15:0] ldac_timer;
-//-----------------------------------------------------------------------------
-always @(posedge clk) begin
-
-    // This is a countdown timer
-    if (ldac_timer) ldac_timer <= ldac_timer - 1;
-
-    if (resetn == 0) begin
-        lsm_state <= 0;
-        ldac_out  <= 1;
-    end
-
-    else case(lsm_state)
-
-        0:  if (ldac_in) begin
-                ldac_out   <= 0;
-                ldac_timer <= 25 / NS_PER_CLK;
-                lsm_state  <= 1;
-            end
-
-        1:  if (ldac_timer == 0) begin
-                ldac_out  <= 1;
-                lsm_state <= 0;
-            end
-
-    endcase
-
-end
-//=============================================================================
-
-
-//=============================================================================
-// This block generates a low-going pulse on clr_out any time clr_in is high
-//=============================================================================
-reg csm_state;
-reg[15:0] clr_timer;
-//-----------------------------------------------------------------------------
-always @(posedge clk) begin
-
-    // This is a countdown timer
-    if (clr_timer) clr_timer <= clr_timer - 1;
-
-    if (resetn == 0) begin
-        csm_state <= 0;
-        clr_out  <= 1;
-    end
-
-    else case(csm_state)
-
-        0:  if (clr_in) begin
-                clr_out   <= 0;
-                clr_timer <= 40 / NS_PER_CLK;
-                csm_state  <= 1;
-            end
-
-        1:  if (clr_timer == 0) begin
-                clr_out  <= 1;
-                csm_state <= 0;
-            end
-
-    endcase
-
-end
-//=============================================================================
-
+// These are the possible states of "fsm_state"
+localparam FSM_IDLE          = 0;
+localparam FSM_FALLING_SCK   = 1;
+localparam FSM_RISING_SCK    = 2;
+localparam FSM_END_CLR_LDAC  = 3;
+localparam FSM_WAIT_COMPLETE = 4;
 
 
 //=============================================================================
@@ -154,60 +90,100 @@ end
 always @(posedge clk) begin
 
     // This is a countdown timer
-    if (delay) delay <= delay - 1;
+    if (fsm_delay) fsm_delay <= fsm_delay - 1;
 
     if (resetn == 0) begin
-        fsm_state <= 0;
+        fsm_state <= FSM_IDLE;
         csld      <= CSLD_LOAD;
         sck       <= 0;
+        ldac_out  <= 1; // Active low
+        clr_out   <= 1; // Active low
     end
-    
+  
     else case(fsm_state)
 
-        // To start an SPI transmission, drive csld to the "chip-select" state
-        0:  if (start) begin
-                spi_dataword <= {dac_cmd, dac_channel, dac_value};
-                csld         <= CSLD_CHIP_SELECT;
-                sck          <= 0;
-                sdo          <= dac_cmd[3];
-                delay        <= SPI_SCK_DELAY;
-                bit_counter  <= 1;
-                fsm_state    <= fsm_state + 1;
-            end
+        // Here we wait for a new command to arrive
+        FSM_IDLE:
+            begin
 
-        1:  if (delay == 0) begin
-                sck          <= 1;
-                delay        <= SPI_SCK_DELAY;
-                spi_dataword <= spi_dataword << 1;
-                fsm_state    <= fsm_state + 1;
-            end            
+                // Here we setup to drive out data to the SPI
+                if (command == COMMAND_XFER) begin
+                    spi_dataword <= {dac_cmd, dac_channel, dac_value};
+                    csld         <= CSLD_CHIP_SELECT;
+                    sck          <= 0;
+                    fsm_delay    <= 0;
+                    bit_counter  <= 0;
+                    fsm_state    <= FSM_FALLING_SCK;
+                end
 
-        2:  if (delay == 0) begin
-                sck <= 0;
-                sdo <= spi_dataword[23];
-                if (bit_counter == 24) begin
-                    csld      <= CSLD_LOAD;
-                    delay     <= SPI_SCK_DELAY;
-                    fsm_state <= fsm_state + 1;
-                end else begin
-                    bit_counter <= bit_counter + 1;
-                    delay       <= SPI_SCK_DELAY;
-                    fsm_state   <= fsm_state - 1;
+                // Here we drive ldac_out low for a short pulse
+                if (command == COMMAND_LDAC) begin
+                    ldac_out  <= 0;
+                    fsm_delay <= 25 / NS_PER_CLK;
+                    fsm_state <= FSM_END_CLR_LDAC;
+                end
+
+                // Here we drive clr_out low for a short pulse
+                if (command == COMMAND_CLR) begin
+                    clr_out   <= 0;
+                    fsm_delay <= 40 / NS_PER_CLK;
+                    fsm_state <= FSM_END_CLR_LDAC;
                 end
 
             end
 
-        3: if (delay == 0) fsm_state <= 0;
+        // Drive out the next outgoing bit on sdo, and drive SCK low
+        FSM_FALLING_SCK:
+            if (fsm_delay == 0) begin
+                sck          <= 0;
+                sdo          <= spi_dataword[23];
+                spi_dataword <= spi_dataword << 1;
+                if (bit_counter < 24) begin
+                    fsm_delay   <= SPI_SCK_DELAY;
+                    fsm_state   <= FSM_RISING_SCK;
+                end else begin
+                    csld      <= CSLD_LOAD;
+                    fsm_state <= FSM_WAIT_COMPLETE;
+                end
+
+            end
+
+        // Drive SCK high
+        FSM_RISING_SCK:
+            if (fsm_delay == 0) begin
+                sck          <= 1;
+                fsm_delay    <= SPI_SCK_DELAY;
+                bit_counter  <= bit_counter + 1;                
+                fsm_state    <= FSM_FALLING_SCK;
+            end            
+
+
+        // End either a COMMAND_CLR or COMMAND_LDAC operation     
+        FSM_END_CLR_LDAC:
+            if (fsm_delay == 0) begin
+                ldac_out  <= 1;
+                clr_out   <= 1;
+                fsm_state <= FSM_WAIT_COMPLETE;
+            end
+
+        // Setup a timer to allow for the physical DAC to complete 
+        // the operation
+        FSM_WAIT_COMPLETE:
+            begin
+                fsm_delay <= 20/NS_PER_CLK;
+                fsm_state <= fsm_state + 1;
+            end
+
+        // When the DAC has completed the operation, go back to idle
+        FSM_WAIT_COMPLETE + 1:
+            if (fsm_delay == 0) fsm_state <= FSM_IDLE;
 
     endcase
 
 end
 //=============================================================================
 
-
 // The "idle" pin is high when the entire system is idle
-assign idle = (clr_in  == 0) & (csm_state == 0)
-            & (ldac_in == 0) & (lsm_state == 0)
-            & (start   == 0) & (fsm_state == 0);
+assign idle = (command == 0) & (fsm_state == 0);
 
 endmodule

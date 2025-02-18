@@ -22,9 +22,7 @@ module axi_dac_control # (parameter AW=8)
     output reg[ 3:0] dac_cmd,
     output reg[ 3:0] dac_channel,
     output reg[15:0] dac_value,
-    output reg       dac_start, 
-    output reg       dac_ldac,
-    output reg       dac_clr,
+    output reg[ 1:0] command,
 
     //================== This is an AXI4-Lite slave interface ==================
         
@@ -58,6 +56,13 @@ module axi_dac_control # (parameter AW=8)
     input                                   S_AXI_RREADY
     //==========================================================================
 );  
+
+
+// These are the commands that can be written to the "command" port
+localparam COMMAND_NONE = 0;
+localparam COMMAND_XFER = 1;
+localparam COMMAND_LDAC = 2;
+localparam COMMAND_CLR  = 3;
 
 //=========================  AXI Register Map  =============================
 localparam REG_DAC_CMD   = 0;
@@ -108,9 +113,8 @@ localparam ADDR_MASK = (1 << AW) - 1;
 //==========================================================================
 always @(posedge clk) begin
 
-    dac_start <= 0;
-    dac_ldac  <= 0;
-    dac_clr   <= 0;
+    // This is non-zero only for one clock-cycle at a time
+    command <= COMMAND_NONE;
 
     // If we're in reset, initialize important registers
     if (resetn == 0) begin
@@ -128,19 +132,23 @@ always @(posedge clk) begin
                 // ashi_windex = index of register to be written
                 case (ashi_windx)
                
+                    // Define the value for the DAC's command and address fields
                     REG_DAC_CMD:    begin
                                         dac_cmd     <= ashi_wdata[7:4];
                                         dac_channel <= ashi_wdata[3:0];
                                     end
                    
+                    // Define a value for the DAC value and start the transfer
                     REG_DAC_VALUE:  begin
                                         dac_value <= ashi_wdata;
-                                        dac_start <= 1;
+                                        command   <= COMMAND_XFER;
                                     end
 
-                    REG_DAC_LDAC:   dac_ldac <= 1;
+                    // Start a "Load DAC" command on the DAC
+                    REG_DAC_LDAC:   command <= COMMAND_LDAC;
 
-                    REG_DAC_CLR:    dac_clr  <= 1;
+                    // Start a "Clear DAC" command on the DAC
+                    REG_DAC_CLR:    command <= COMMAND_CLR;
 
                     // Writes to any other register are a decode-error
                     default: ashi_wresp <= DECERR;
